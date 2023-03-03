@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 pub mod auth;
 
 pub fn run(ms_auth_config: MsGraphOAuthConfig) -> Result<(), Box<dyn std::error::Error>> {
-    let binding = auth::get_access_token(ms_auth_config)?;
+    let binding = auth::application::get_access_token(ms_auth_config)?;
     let access_token = binding.access_token();
     let client = reqwest::blocking::Client::new();
 
@@ -30,6 +30,31 @@ fn list_users(
 
     let parsed_response: MsGraphBetaBody<MsGraphUser> = response.json()?;
     //let parsed_response: serde_json::Value = response.json()?;
+
+    println!("response: {:#?}", parsed_response);
+
+    Ok(())
+}
+
+fn get_user_purpose(
+    client: &reqwest::blocking::Client,
+    access_token: &AccessToken,
+    guid: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let url = format!(
+        "https://graph.microsoft.com/beta/users/{}/mailboxSettings/userPurpose",
+        guid
+    );
+    let response = client.get(url).bearer_auth(access_token.secret()).send()?;
+
+    if !response.status().is_success() {
+        return Err(format!("request failed: {}", response.status()).into());
+    }
+
+    println!("response: {:#?}", response);
+
+    // let parsed_response: MsGraphBetaBody<Option<String>> = response.json()?;
+    let parsed_response: serde_json::Value = response.json()?;
 
     println!("response: {:#?}", parsed_response);
 
