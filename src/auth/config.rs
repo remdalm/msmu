@@ -4,19 +4,19 @@ use std::{collections::HashMap, error::Error, fs};
 pub struct MsGraphOAuthConfig {
     pub graph_client_id: String,
     pub graph_client_secret: String,
-    pub return_url: String,
+    pub redirect_url: String,
 }
 
 impl MsGraphOAuthConfig {
     pub fn new<S: ToString>(
         graph_client_id: S,
         graph_client_secret: S,
-        return_url: S,
+        redirect_url: S,
     ) -> MsGraphOAuthConfig {
         MsGraphOAuthConfig {
             graph_client_id: graph_client_id.to_string(),
             graph_client_secret: graph_client_secret.to_string(),
-            return_url: return_url.to_string(),
+            redirect_url: redirect_url.to_string(),
         }
     }
 
@@ -26,7 +26,7 @@ impl MsGraphOAuthConfig {
         Ok(MsGraphOAuthConfig::new(
             map.get("MSGRAPH_CLIENT_ID").unwrap(),
             map.get("MSGRAPH_CLIENT_SECRET").unwrap(),
-            map.get("RETURN_URL").unwrap(),
+            map.get("REDIRECT_URL").unwrap(),
         ))
     }
 
@@ -41,7 +41,7 @@ impl MsGraphOAuthConfig {
             match key {
                 "MSGRAPH_CLIENT_ID" => map.insert("MSGRAPH_CLIENT_ID", value),
                 "MSGRAPH_CLIENT_SECRET" => map.insert("MSGRAPH_CLIENT_SECRET", value),
-                "RETURN_URL" => map.insert("RETURN_URL", value),
+                "REDIRECT_URL" => map.insert("REDIRECT_URL", value),
                 _ => None,
             };
         }
