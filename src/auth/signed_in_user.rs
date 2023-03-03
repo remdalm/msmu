@@ -37,7 +37,7 @@ pub fn get_access_token(
     .set_auth_type(AuthType::RequestBody)
     // This example will be running its own server at localhost:3003.
     // See below for the server implementation.
-    .set_redirect_uri(RedirectUrl::new(ms_auth_config.return_url).expect("Invalid redirect URL"));
+    .set_redirect_uri(RedirectUrl::new(ms_auth_config.redirect_url).expect("Invalid redirect URL"));
 
     // Microsoft Graph supports Proof Key for Code Exchange (PKCE - https://oauth.net/2/pkce/).
     // Create a PKCE code verifier and SHA-256 encode it as a code challenge.
