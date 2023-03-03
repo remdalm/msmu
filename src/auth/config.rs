@@ -5,6 +5,7 @@ pub struct MsGraphOAuthConfig {
     pub graph_client_id: String,
     pub graph_client_secret: String,
     pub redirect_url: String,
+    pub tenant_id: String,
 }
 
 impl MsGraphOAuthConfig {
@@ -12,11 +13,13 @@ impl MsGraphOAuthConfig {
         graph_client_id: S,
         graph_client_secret: S,
         redirect_url: S,
+        tenant_id: S,
     ) -> MsGraphOAuthConfig {
         MsGraphOAuthConfig {
             graph_client_id: graph_client_id.to_string(),
             graph_client_secret: graph_client_secret.to_string(),
             redirect_url: redirect_url.to_string(),
+            tenant_id: tenant_id.to_string(),
         }
     }
 
@@ -27,6 +30,7 @@ impl MsGraphOAuthConfig {
             map.get("MSGRAPH_CLIENT_ID").unwrap(),
             map.get("MSGRAPH_CLIENT_SECRET").unwrap(),
             map.get("REDIRECT_URL").unwrap(),
+            map.get("TENANT_ID").unwrap(),
         ))
     }
 
@@ -42,11 +46,12 @@ impl MsGraphOAuthConfig {
                 "MSGRAPH_CLIENT_ID" => map.insert("MSGRAPH_CLIENT_ID", value),
                 "MSGRAPH_CLIENT_SECRET" => map.insert("MSGRAPH_CLIENT_SECRET", value),
                 "REDIRECT_URL" => map.insert("REDIRECT_URL", value),
+                "TENANT_ID" => map.insert("TENANT_ID", value),
                 _ => None,
             };
         }
 
-        if map.len() != 3 {
+        if map.len() != 4 {
             return Err("Missing environment variables in config file");
         }
 
