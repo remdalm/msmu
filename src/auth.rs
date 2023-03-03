@@ -1,26 +1,21 @@
-use oauth2::basic::BasicClient;
+use oauth2::basic::{BasicClient, BasicTokenType};
 use oauth2::reqwest::http_client;
 use oauth2::{
-    AuthType, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge,
-    RedirectUrl, Scope, TokenUrl,
+    AuthType, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, EmptyExtraTokenFields,
+    PkceCodeChallenge, RedirectUrl, Scope, StandardTokenResponse, TokenUrl,
 };
 use std::io::{BufRead, BufReader, Error, ErrorKind, Write};
 use std::net::TcpListener;
 use url::Url;
 
-use self::config::MsOAuthConfig;
+use self::config::MsGraphOAuthConfig;
 
 pub mod config;
 
 pub fn get_access_token(
-    ms_auth_config: MsOAuthConfig,
-) -> Result<
-    oauth2::StandardTokenResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>,
-    oauth2::RequestTokenError<
-        oauth2::reqwest::Error<reqwest::Error>,
-        oauth2::StandardErrorResponse<oauth2::basic::BasicErrorResponseType>,
-    >,
-> {
+    ms_auth_config: MsGraphOAuthConfig,
+) -> Result<StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>, Box<dyn std::error::Error>>
+{
     let graph_client_id = ClientId::new(ms_auth_config.graph_client_id);
     let graph_client_secret = ClientSecret::new(ms_auth_config.graph_client_secret);
     let auth_url = AuthUrl::new(
@@ -53,10 +48,7 @@ pub fn get_access_token(
     // Generate the authorization URL to which we'll redirect the user.
     let (authorize_url, _csrf_state) = client
         .authorize_url(CsrfToken::new_random)
-        // This example requests read access to OneDrive.
-        .add_scope(Scope::new(
-            "https://graph.microsoft.com/User.Read".to_string(),
-        ))
+        .add_scope(Scope::new("User.Read User.ReadBasic.All".to_string()))
         .set_pkce_challenge(pkce_code_challenge)
         .url();
 
@@ -81,9 +73,9 @@ pub fn get_access_token(
         .exchange_code(authorization_code)
         // Send the PKCE code verifier in the token request
         .set_pkce_verifier(pkce_code_verifier)
-        .request(http_client);
+        .request(http_client)?;
 
-    token
+    Ok(token)
 }
 
 fn get_authorization_code() -> Result<AuthorizationCode, Error> {
