@@ -1,29 +1,29 @@
 use std::{collections::HashMap, error::Error, fs};
 
 #[derive(Debug, Clone)]
-pub struct MsOAuthConfig {
+pub struct MsGraphOAuthConfig {
     pub graph_client_id: String,
     pub graph_client_secret: String,
     pub return_url: String,
 }
 
-impl MsOAuthConfig {
+impl MsGraphOAuthConfig {
     pub fn new<S: ToString>(
         graph_client_id: S,
         graph_client_secret: S,
         return_url: S,
-    ) -> MsOAuthConfig {
-        MsOAuthConfig {
+    ) -> MsGraphOAuthConfig {
+        MsGraphOAuthConfig {
             graph_client_id: graph_client_id.to_string(),
             graph_client_secret: graph_client_secret.to_string(),
             return_url: return_url.to_string(),
         }
     }
 
-    pub fn from_file(config_file_path: &str) -> Result<MsOAuthConfig, Box<dyn Error>> {
+    pub fn from_file(config_file_path: &str) -> Result<MsGraphOAuthConfig, Box<dyn Error>> {
         let contents = fs::read_to_string(config_file_path)?;
-        let map = MsOAuthConfig::parse_env_file(&contents)?;
-        Ok(MsOAuthConfig::new(
+        let map = MsGraphOAuthConfig::parse_env_file(&contents)?;
+        Ok(MsGraphOAuthConfig::new(
             map.get("MSGRAPH_CLIENT_ID").unwrap(),
             map.get("MSGRAPH_CLIENT_SECRET").unwrap(),
             map.get("RETURN_URL").unwrap(),

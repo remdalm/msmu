@@ -1,6 +1,6 @@
 use std::process;
 
-use msmu::auth::config::MsOAuthConfig;
+use msmu::auth::config::MsGraphOAuthConfig;
 
 fn main() {
     //extract the --env= or -e argument
@@ -27,7 +27,7 @@ fn main() {
         .replace("--env", "")
         .replace("-e", "");
 
-    let config = MsOAuthConfig::from_file(&env_arg).unwrap_or_else(|e| {
+    let config = MsGraphOAuthConfig::from_file(&env_arg).unwrap_or_else(|e| {
         eprintln!("Error reading config file: {}", e);
         process::exit(1);
     });
