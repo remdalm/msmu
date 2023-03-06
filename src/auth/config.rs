@@ -1,10 +1,11 @@
+use oauth2::{ClientId, ClientSecret, RedirectUrl};
 use std::{collections::HashMap, error::Error, fs};
-
+use url::Url;
 #[derive(Debug, Clone)]
 pub struct MsGraphOAuthConfig {
-    pub graph_client_id: String,
-    pub graph_client_secret: String,
-    pub redirect_url: String,
+    pub graph_client_id: ClientId,
+    pub graph_client_secret: ClientSecret,
+    pub redirect_url: RedirectUrl,
     pub tenant_id: String,
 }
 
@@ -12,13 +13,13 @@ impl MsGraphOAuthConfig {
     pub fn new<S: ToString>(
         graph_client_id: S,
         graph_client_secret: S,
-        redirect_url: S,
+        redirect_url: Url,
         tenant_id: S,
     ) -> MsGraphOAuthConfig {
         MsGraphOAuthConfig {
-            graph_client_id: graph_client_id.to_string(),
-            graph_client_secret: graph_client_secret.to_string(),
-            redirect_url: redirect_url.to_string(),
+            graph_client_id: ClientId::new(graph_client_id.to_string()),
+            graph_client_secret: ClientSecret::new(graph_client_secret.to_string()),
+            redirect_url: RedirectUrl::from_url(redirect_url),
             tenant_id: tenant_id.to_string(),
         }
     }
@@ -26,10 +27,11 @@ impl MsGraphOAuthConfig {
     pub fn from_file(config_file_path: &str) -> Result<MsGraphOAuthConfig, Box<dyn Error>> {
         let contents = fs::read_to_string(config_file_path)?;
         let map = MsGraphOAuthConfig::parse_env_file(&contents)?;
+        let redirect_url = Url::parse(map.get("REDIRECT_URL").unwrap())?;
         Ok(MsGraphOAuthConfig::new(
             map.get("MSGRAPH_CLIENT_ID").unwrap(),
             map.get("MSGRAPH_CLIENT_SECRET").unwrap(),
-            map.get("REDIRECT_URL").unwrap(),
+            redirect_url,
             map.get("TENANT_ID").unwrap(),
         ))
     }

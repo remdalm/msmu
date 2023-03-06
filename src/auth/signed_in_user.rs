@@ -14,8 +14,6 @@ pub fn get_access_token(
     ms_auth_config: MsGraphOAuthConfig,
 ) -> Result<StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>, Box<dyn std::error::Error>>
 {
-    let graph_client_id = ClientId::new(ms_auth_config.graph_client_id);
-    let graph_client_secret = ClientSecret::new(ms_auth_config.graph_client_secret);
     let auth_url = AuthUrl::new(
         "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize".to_string(),
     )
@@ -27,8 +25,8 @@ pub fn get_access_token(
 
     // Set up the config for the Microsoft Graph OAuth2 process.
     let client = BasicClient::new(
-        graph_client_id,
-        Some(graph_client_secret),
+        ms_auth_config.graph_client_id,
+        Some(ms_auth_config.graph_client_secret),
         auth_url,
         Some(token_url),
     )
@@ -37,7 +35,7 @@ pub fn get_access_token(
     .set_auth_type(AuthType::RequestBody)
     // This example will be running its own server at localhost:3003.
     // See below for the server implementation.
-    .set_redirect_uri(RedirectUrl::new(ms_auth_config.redirect_url).expect("Invalid redirect URL"));
+    .set_redirect_uri(ms_auth_config.redirect_url);
 
     // Microsoft Graph supports Proof Key for Code Exchange (PKCE - https://oauth.net/2/pkce/).
     // Create a PKCE code verifier and SHA-256 encode it as a code challenge.
